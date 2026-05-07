@@ -1,40 +1,65 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Home.css";
 
-type Study = {
-    id: number;
-    name: string;
-    role: string;
-};
+import {
+    createStudy,
+    getMyStudyList,
+    joinStudy,
+    type StudyListItem,
+} from "../api/studyAPI";
 
-type Assignment = {
-    id: number;
-    title: string;
-    due: string;
-    status: "완료" | "진행중" | "미제출";
-};
+import {
+    createManualAssignment,
+    getAssignmentSubmissions,
+    getMyAssignments,
+    submitAssignment,
+    type AssignmentSubmissionItem,
+    type MyAssignmentItem,
+} from "../api/assignmentAPI";
 
-type Todo = {
-    id: number;
-    text: string;
-    checked: boolean;
-};
+import Sidebar from "../component/Sidebar";
+import Header from "../component/Header";
+import HeroSection from "../component/HeroSection";
+import AssignmentSection from "../component/AssignmentSection";
+import TodoSection from "../component/TodoSection";
+import NoticeSection from "../component/NoticeSection";
+import ScheduleSection from "../component/ScheduleSection";
+import ActivitySection from "../component/ActivitySection";
+import CreateStudyModal from "../component/CreateStudyModal";
+import JoinStudyModal from "../component/JoinStudyModal";
+import AIAssignmentModal from "../component/AIAssignmentModal";
+import ManualAssignmentModal from "../component/ManualAssignmentModal";
+import SubmitAssignmentModal from "../component/SubmitAssignmentModal";
+import SubmissionListModal from "../component/SubmissionListModal";
+
+import type { Study } from "../types/study";
+import type { Assignment } from "../types/assignment";
+import type { Todo } from "../types/todo";
+import type { Submission } from "../types/submission";
 
 const Home: React.FC = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [studies, setStudies] = useState<Study[]>([]);
+    const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
+    const [studyListLoading, setStudyListLoading] = useState(false);
 
-    const studies: Study[] = [
-        { id: 1, name: "알고리즘 스터디", role: "스터디원" },
-        { id: 2, name: "AI 프로젝트 스터디", role: "스터디장" },
-        { id: 3, name: "CS 면접 대비", role: "스터디원" },
-        { id: 4, name: "웹 개발 협업 스터디", role: "스터디원" },
-    ];
+    const [assignments, setAssignments] = useState<Assignment[]>([]);
+    const [selectedAssignment, setSelectedAssignment] =
+        useState<Assignment | null>(null);
+    const [assignmentLoading, setAssignmentLoading] = useState(false);
 
-    const assignments: Assignment[] = [
-        { id: 1, title: "자료구조 문제 풀이 10문제", due: "오늘 마감", status: "진행중" },
-        { id: 2, title: "ERD 설계 초안 제출", due: "내일 마감", status: "미제출" },
-        { id: 3, title: "React 컴포넌트 분리 과제", due: "제출 완료", status: "완료" },
-    ];
+    const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [submissionLoading, setSubmissionLoading] = useState(false);
+
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+    const [isAIAssignmentModalOpen, setIsAIAssignmentModalOpen] =
+        useState(false);
+    const [isManualAssignmentModalOpen, setIsManualAssignmentModalOpen] =
+        useState(false);
+    const [isSubmitAssignmentModalOpen, setIsSubmitAssignmentModalOpen] =
+        useState(false);
+    const [isSubmissionListModalOpen, setIsSubmissionListModalOpen] =
+        useState(false);
 
     const todos: Todo[] = [
         { id: 1, text: "AI 퀴즈 1회차 풀기", checked: true },
@@ -55,210 +80,310 @@ const Home: React.FC = () => {
         { title: "프로젝트 발표 준비", time: "금요일 18:00" },
     ];
 
+    const convertStudy = (study: StudyListItem): Study => {
+        const savedUser = localStorage.getItem("user");
+        const user = savedUser ? JSON.parse(savedUser) : null;
+
+        return {
+            id: study.id,
+            name: study.title,
+            role: user?.name === study.creatorName ? "스터디장" : "스터디원",
+            description: study.description,
+            inviteCode: study.inviteCode,
+            creatorName: study.creatorName,
+        };
+    };
+
+    const convertAssignment = (assignment: MyAssignmentItem): Assignment => {
+        let status: Assignment["status"] = "미제출";
+
+        if (assignment.isExpired) {
+            status = "마감";
+        } else if (assignment.isSubmitted) {
+            status = "제출완료";
+        }
+
+        return {
+            id: assignment.assignmentId,
+            studyId: assignment.studyId,
+            title: assignment.title,
+            content: assignment.content,
+            due: assignment.dueDate,
+            status,
+        };
+    };
+
+    const convertSubmission = (
+        submission: AssignmentSubmissionItem
+    ): Submission => {
+        return {
+            submissionId: submission.submissionId,
+            memberId: submission.memberId,
+            memberName: submission.memberName,
+            content: submission.content,
+            submittedAt: submission.submittedAt,
+        };
+    };
+
+    const fetchMyStudyList = async () => {
+        try {
+            setStudyListLoading(true);
+
+            const data = await getMyStudyList();
+            const convertedStudies = data.map(convertStudy);
+
+            setStudies(convertedStudies);
+
+            if (convertedStudies.length > 0) {
+                setSelectedStudy((prev) => prev ?? convertedStudies[0]);
+            } else {
+                setSelectedStudy(null);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("내 스터디 목록을 불러오지 못했습니다. 로그인 상태를 확인해주세요.");
+        } finally {
+            setStudyListLoading(false);
+        }
+    };
+
+    const fetchMyAssignments = async () => {
+        try {
+            setAssignmentLoading(true);
+
+            const data = await getMyAssignments();
+            const convertedAssignments = data.map(convertAssignment);
+
+            setAssignments(convertedAssignments);
+        } catch (error) {
+            console.error(error);
+            alert("과제 목록을 불러오지 못했습니다. 로그인 상태를 확인해주세요.");
+        } finally {
+            setAssignmentLoading(false);
+        }
+    };
+
+    const fetchAssignmentSubmissions = async (assignment: Assignment) => {
+        if (!selectedStudy) return;
+
+        try {
+            setSubmissionLoading(true);
+
+            const data = await getAssignmentSubmissions(
+                selectedStudy.id,
+                assignment.id
+            );
+
+            setSubmissions(data.map(convertSubmission));
+        } catch (error) {
+            console.error(error);
+            alert("제출 목록을 불러오지 못했습니다. 로그인 상태 또는 권한을 확인해주세요.");
+        } finally {
+            setSubmissionLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchMyStudyList();
+        fetchMyAssignments();
+    }, []);
+
+    const selectedAssignments = selectedStudy
+        ? assignments.filter((assignment) => assignment.studyId === selectedStudy.id)
+        : [];
+
+    const handleCreateStudy = async (title: string, description: string) => {
+        const result = await createStudy({
+            title,
+            description,
+        });
+
+        alert(`${result.message}\n초대코드: ${result.inviteCode}`);
+
+        await fetchMyStudyList();
+    };
+
+    const handleJoinStudy = async (inviteCode: string) => {
+        const result = await joinStudy({
+            inviteCode,
+        });
+
+        alert(result.message);
+
+        await fetchMyStudyList();
+        await fetchMyAssignments();
+    };
+
+    const handleShareInviteCode = async () => {
+        if (!selectedStudy) {
+            alert("스터디를 먼저 선택하세요.");
+            return;
+        }
+
+        if (!selectedStudy.inviteCode) {
+            alert("초대코드가 없습니다.");
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(selectedStudy.inviteCode);
+            alert(`초대코드가 복사되었습니다.\n${selectedStudy.inviteCode}`);
+        } catch (error) {
+            console.error(error);
+            alert(`초대코드: ${selectedStudy.inviteCode}`);
+        }
+    };
+
+    const checkStudyLeader = () => {
+        if (!selectedStudy) {
+            alert("스터디를 먼저 선택하세요.");
+            return false;
+        }
+
+        if (selectedStudy.role !== "스터디장") {
+            alert("스터디장만 사용할 수 있는 기능입니다.");
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleOpenAIAssignmentModal = () => {
+        if (!checkStudyLeader()) return;
+        setIsAIAssignmentModalOpen(true);
+    };
+
+    const handleOpenManualAssignmentModal = () => {
+        if (!checkStudyLeader()) return;
+        setIsManualAssignmentModalOpen(true);
+    };
+
+    const handleCreateManualAssignment = async (
+        title: string,
+        content: string
+    ) => {
+        if (!selectedStudy) return;
+
+        const result = await createManualAssignment(selectedStudy.id, {
+            title,
+            content,
+        });
+
+        alert(`${result.message}\n마감일: ${result.dueDate}`);
+
+        await fetchMyAssignments();
+    };
+
+    const handleOpenSubmitModal = (assignment: Assignment) => {
+        setSelectedAssignment(assignment);
+        setIsSubmitAssignmentModalOpen(true);
+    };
+
+    const handleSubmitAssignment = async (content: string) => {
+        if (!selectedStudy || !selectedAssignment) return;
+
+        const result = await submitAssignment(
+            selectedStudy.id,
+            selectedAssignment.id,
+            { content }
+        );
+
+        alert(result.message);
+
+        await fetchMyAssignments();
+    };
+
+    const handleOpenSubmissionListModal = async (assignment: Assignment) => {
+        if (!checkStudyLeader()) return;
+
+        setSelectedAssignment(assignment);
+        setIsSubmissionListModalOpen(true);
+        await fetchAssignmentSubmissions(assignment);
+    };
+
     return (
         <div className="home">
-            <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-                <div className="sidebar-top">
-                    <div className="sidebar-header">
-                        {sidebarOpen && <h2 className="workspace-title">StudySpace</h2>}
-                        <button
-                            className="toggle-btn"
-                            onClick={() => setSidebarOpen(!sidebarOpen)}
-                        >
-                            {sidebarOpen ? "◀" : "▶"}
-                        </button>
-                    </div>
-
-                    {sidebarOpen && (
-                        <div className="sidebar-user-card">
-                            <div className="user-avatar">김</div>
-                            <div>
-                                <p className="user-name">김현수</p>
-                                <span className="user-role">AI Study Member</span>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <div className="sidebar-section">
-                    {sidebarOpen && <p className="section-label">내 스터디</p>}
-                    <div className="study-list">
-                        {studies.map((study) => (
-                            <button key={study.id} className="study-item">
-                                <span className="study-icon">📘</span>
-                                {sidebarOpen && (
-                                    <span className="study-meta">
-                                        <span className="study-name">{study.name}</span>
-                                        <span className="study-role">{study.role}</span>
-                                    </span>
-                                )}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="sidebar-section sidebar-actions">
-                    <button className="action-btn primary">
-                        <span>＋</span>
-                        {sidebarOpen && <span>스터디 생성</span>}
-                    </button>
-                    <button className="action-btn secondary">
-                        <span>↗</span>
-                        {sidebarOpen && <span>스터디 참여</span>}
-                    </button>
-                </div>
-
-                <div className="sidebar-bottom">
-                    <button className="bottom-link">
-                        <span>🏠</span>
-                        {sidebarOpen && <span>홈</span>}
-                    </button>
-                    <button className="bottom-link">
-                        <span>⚙</span>
-                        {sidebarOpen && <span>설정</span>}
-                    </button>
-                </div>
-            </aside>
+            <Sidebar
+                studies={studies}
+                selectedStudy={selectedStudy}
+                loading={studyListLoading}
+                onSelectStudy={setSelectedStudy}
+                onOpenCreateModal={() => setIsCreateModalOpen(true)}
+                onOpenJoinModal={() => setIsJoinModalOpen(true)}
+            />
 
             <main className="main-content">
-                <header className="topbar">
-                    <div>
-                        <p className="topbar-path">내 스터디 / AI 프로젝트 스터디</p>
-                        <h1>AI 프로젝트 스터디</h1>
-                    </div>
+                <Header
+                    selectedStudy={selectedStudy}
+                    onShareInviteCode={handleShareInviteCode}
+                    onOpenAIAssignmentModal={handleOpenAIAssignmentModal}
+                    onOpenManualAssignmentModal={handleOpenManualAssignmentModal}
+                />
 
-                    <div className="topbar-actions">
-                        <button className="top-btn">공유</button>
-                        <button className="top-btn primary">새 과제</button>
-                    </div>
-                </header>
-
-                <section className="hero-card">
-                    <div className="hero-left">
-                        <span className="hero-badge">스터디장 중심 운영</span>
-                        <h2>과제, 일정, 프로젝트 현황을 한 번에 관리하세요</h2>
-                        <p>
-                            AI 자동 퀴즈, 과제 분석, 팀 프로젝트 진행률 확인까지.
-                            스터디 운영에 필요한 정보를 한 화면에서 빠르게 확인할 수 있습니다.
-                        </p>
-
-                        <div className="hero-summary">
-                            <div className="summary-box">
-                                <h3>12명</h3>
-                                <p>참여 인원</p>
-                            </div>
-                            <div className="summary-box">
-                                <h3>3개</h3>
-                                <p>진행중 과제</p>
-                            </div>
-                            <div className="summary-box">
-                                <h3>78%</h3>
-                                <p>프로젝트 진척도</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="hero-right">
-                        <div className="progress-card">
-                            <p className="progress-title">이번 주 프로젝트 진행률</p>
-                            <div className="progress-bar">
-                                <div className="progress-fill" style={{ width: "78%" }}></div>
-                            </div>
-                            <strong>78%</strong>
-                        </div>
-                    </div>
-                </section>
+                <HeroSection
+                    selectedStudy={selectedStudy}
+                    assignmentCount={selectedAssignments.length}
+                />
 
                 <section className="content-grid">
-                    <div className="content-card large">
-                        <div className="card-title-row">
-                            <h3>진행중 과제</h3>
-                            <button>전체보기</button>
-                        </div>
+                    <AssignmentSection
+                        assignments={selectedAssignments}
+                        loading={assignmentLoading}
+                        isLeader={selectedStudy?.role === "스터디장"}
+                        onOpenSubmitModal={handleOpenSubmitModal}
+                        onOpenSubmissionListModal={handleOpenSubmissionListModal}
+                    />
 
-                        <div className="assignment-list">
-                            {assignments.map((assignment) => (
-                                <div className="assignment-item" key={assignment.id}>
-                                    <div>
-                                        <p className="assignment-title">{assignment.title}</p>
-                                        <span className="assignment-due">{assignment.due}</span>
-                                    </div>
-                                    <span className={`status-badge ${assignment.status}`}>
-                                        {assignment.status}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="content-card">
-                        <div className="card-title-row">
-                            <h3>TO DO</h3>
-                        </div>
-
-                        <div className="todo-list">
-                            {todos.map((todo) => (
-                                <label className="todo-item" key={todo.id}>
-                                    <input type="checkbox" checked={todo.checked} readOnly />
-                                    <span className={todo.checked ? "checked" : ""}>{todo.text}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="content-card">
-                        <div className="card-title-row">
-                            <h3>공지사항</h3>
-                        </div>
-
-                        <ul className="notice-list">
-                            {notices.map((notice, index) => (
-                                <li key={index}>{notice}</li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="content-card">
-                        <div className="card-title-row">
-                            <h3>다가오는 일정</h3>
-                        </div>
-
-                        <div className="schedule-list">
-                            {schedules.map((schedule, index) => (
-                                <div className="schedule-item" key={index}>
-                                    <p>{schedule.title}</p>
-                                    <span>{schedule.time}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="content-card wide">
-                        <div className="card-title-row">
-                            <h3>스터디 활동 요약</h3>
-                        </div>
-
-                        <div className="activity-grid">
-                            <div className="activity-box">
-                                <strong>24</strong>
-                                <span>이번 주 생성된 AI 퀴즈</span>
-                            </div>
-                            <div className="activity-box">
-                                <strong>18</strong>
-                                <span>제출된 과제 수</span>
-                            </div>
-                            <div className="activity-box">
-                                <strong>9</strong>
-                                <span>실시간 채팅 참여자</span>
-                            </div>
-                            <div className="activity-box">
-                                <strong>4</strong>
-                                <span>예정된 일정</span>
-                            </div>
-                        </div>
-                    </div>
+                    <TodoSection todos={todos} />
+                    <NoticeSection notices={notices} />
+                    <ScheduleSection schedules={schedules} />
+                    <ActivitySection />
                 </section>
             </main>
+
+            {isCreateModalOpen && (
+                <CreateStudyModal
+                    onClose={() => setIsCreateModalOpen(false)}
+                    onCreate={handleCreateStudy}
+                />
+            )}
+
+            {isJoinModalOpen && (
+                <JoinStudyModal
+                    onClose={() => setIsJoinModalOpen(false)}
+                    onJoin={handleJoinStudy}
+                />
+            )}
+
+            {isAIAssignmentModalOpen && (
+                <AIAssignmentModal
+                    onClose={() => setIsAIAssignmentModalOpen(false)}
+                />
+            )}
+
+            {isManualAssignmentModalOpen && (
+                <ManualAssignmentModal
+                    onClose={() => setIsManualAssignmentModalOpen(false)}
+                    onCreate={handleCreateManualAssignment}
+                />
+            )}
+
+            {isSubmitAssignmentModalOpen && selectedAssignment && (
+                <SubmitAssignmentModal
+                    assignment={selectedAssignment}
+                    onClose={() => setIsSubmitAssignmentModalOpen(false)}
+                    onSubmit={handleSubmitAssignment}
+                />
+            )}
+
+            {isSubmissionListModalOpen && selectedAssignment && (
+                <SubmissionListModal
+                    assignment={selectedAssignment}
+                    submissions={submissions}
+                    loading={submissionLoading}
+                    onClose={() => setIsSubmissionListModalOpen(false)}
+                />
+            )}
         </div>
     );
 };
