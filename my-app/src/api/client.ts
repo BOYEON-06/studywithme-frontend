@@ -1,4 +1,4 @@
-const BASE_URL = "https://21d8-203-229-48-170.ngrok-free.app";
+const BASE_URL = "http://localhost:9090";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -15,7 +15,7 @@ export async function request<T>(
 
     const headers: HeadersInit = {
         "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true",
+        // "ngrok-skip-browser-warning": "true",
     };
 
     const response = await fetch(`${BASE_URL}${endpoint}`, {

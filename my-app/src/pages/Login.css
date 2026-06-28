@@ -130,3 +130,79 @@ body {
 .check-message.success {
     color: #2563eb;
 }
+
+.user-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #eeeeee;
+    padding: 10px 14px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+}
+
+.user-name-badge {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111111;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: #7a7a7a;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    transition: color 0.15s ease;
+}
+
+.back-button:hover {
+    color: #111111;
+}
+
+.check-message.new-user {
+    color: #2563eb;
+    margin: -8px 0 18px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.check-message.existing-user {
+    color: #16a34a;
+    margin: -8px 0 18px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.password-input-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.password-input-container .login-input {
+    margin-bottom: 0;
+    padding-right: 64px;
+}
+
+.password-toggle-button {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #7a7a7a;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px;
+    transition: color 0.15s ease;
+}
+
+.password-toggle-button:hover {
+    color: #111111;
+}
