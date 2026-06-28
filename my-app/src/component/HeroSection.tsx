@@ -1,6 +1,5 @@
 import React from "react";
 import type { Study } from "../types/study";
-import type { Assignment } from "../types/assignment";
 
 type HeroSectionProps = {
     selectedStudy: Study | null;
