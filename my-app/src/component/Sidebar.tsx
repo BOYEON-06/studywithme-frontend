@@ -40,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <div className="sidebar-header">
                         {sidebarOpen && (
                             <h2 className="workspace-title">
-                                StudySpace
+                                StudyWithMe
                             </h2>
                         )}
 
@@ -68,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </p>
 
                                 <span className="user-role">
-                                    AI Study Member
+                                    내 프로필
                                 </span>
                             </div>
                         </div>
@@ -102,9 +102,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 <button
                                     key={study.id}
                                     className={`study-item ${selectedStudy?.id ===
-                                            study.id
-                                            ? "active"
-                                            : ""
+                                        study.id
+                                        ? "active"
+                                        : ""
                                         }`}
                                     onClick={() =>
                                         onSelectStudy(study)

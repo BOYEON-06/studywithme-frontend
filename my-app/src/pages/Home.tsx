@@ -10,11 +10,13 @@ import {
 
 import {
     createManualAssignment,
-    getAssignmentSubmissions,
     getMyAssignments,
     submitAssignment,
+    gradeSubmission,
+    getLeaderAssignments,
     type AssignmentSubmissionItem,
     type MyAssignmentItem,
+    type LeaderAssignmentItem,
 } from "../api/assignmentAPI";
 
 import Sidebar from "../component/Sidebar";
@@ -60,6 +62,7 @@ const Home: React.FC = () => {
         useState(false);
     const [isSubmissionListModalOpen, setIsSubmissionListModalOpen] =
         useState(false);
+    const [leaderData, setLeaderData] = useState<LeaderAssignmentItem[]>([]);
 
     const todos: Todo[] = [
         { id: 1, text: "AI 퀴즈 1회차 풀기", checked: true },
@@ -110,6 +113,12 @@ const Home: React.FC = () => {
             content: assignment.content,
             due: assignment.dueDate,
             status,
+            submittedContent: assignment.submittedContent,
+            submittedAt: assignment.submittedAt,
+            score: assignment.score,
+            feedback: assignment.feedback,
+            gradedAt: assignment.gradedAt,
+            modelAnswer: assignment.modelAnswer,
         };
     };
 
@@ -122,6 +131,8 @@ const Home: React.FC = () => {
             memberName: submission.memberName,
             content: submission.content,
             submittedAt: submission.submittedAt,
+            score: submission.score,
+            feedback: submission.feedback,
         };
     };
 
@@ -163,29 +174,21 @@ const Home: React.FC = () => {
         }
     };
 
-    const fetchAssignmentSubmissions = async (assignment: Assignment) => {
-        if (!selectedStudy) return;
 
+
+    const fetchLeaderAssignments = async () => {
         try {
-            setSubmissionLoading(true);
-
-            const data = await getAssignmentSubmissions(
-                selectedStudy.id,
-                assignment.id
-            );
-
-            setSubmissions(data.map(convertSubmission));
+            const data = await getLeaderAssignments();
+            setLeaderData(data);
         } catch (error) {
             console.error(error);
-            alert("제출 목록을 불러오지 못했습니다. 로그인 상태 또는 권한을 확인해주세요.");
-        } finally {
-            setSubmissionLoading(false);
         }
     };
 
     useEffect(() => {
         fetchMyStudyList();
         fetchMyAssignments();
+        fetchLeaderAssignments();
     }, []);
 
     const selectedAssignments = selectedStudy
@@ -260,18 +263,21 @@ const Home: React.FC = () => {
 
     const handleCreateManualAssignment = async (
         title: string,
-        content: string
+        content: string,
+        dueDate: string
     ) => {
         if (!selectedStudy) return;
 
         const result = await createManualAssignment(selectedStudy.id, {
             title,
             content,
+            dueDate,
         });
 
         alert(`${result.message}\n마감일: ${result.dueDate}`);
 
         await fetchMyAssignments();
+        await fetchLeaderAssignments();
     };
 
     const handleOpenSubmitModal = (assignment: Assignment) => {
@@ -293,12 +299,69 @@ const Home: React.FC = () => {
         await fetchMyAssignments();
     };
 
+    const handleGradeSubmission = async (
+        submissionId: number,
+        score: number,
+        feedback: string
+    ) => {
+        if (!selectedAssignment || !selectedStudy) return;
+        try {
+            const result = await gradeSubmission(submissionId, { score, feedback });
+            alert(result.message);
+            const updatedData = await getLeaderAssignments();
+            setLeaderData(updatedData);
+
+            const currentGroup = updatedData.find(g => g.studyGroupId === selectedStudy.id);
+            if (currentGroup) {
+                const targetGroup = currentGroup.assignmentGroups.find(
+                    g => g.assignment.assignmentId === selectedAssignment.id
+                );
+                if (targetGroup) {
+                    setSubmissions(targetGroup.submissions.map(convertSubmission));
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            alert("채점에 실패했습니다.");
+        }
+    };
+
     const handleOpenSubmissionListModal = async (assignment: Assignment) => {
-        if (!checkStudyLeader()) return;
+        if (!checkStudyLeader() || !selectedStudy) return;
 
         setSelectedAssignment(assignment);
         setIsSubmissionListModalOpen(true);
-        await fetchAssignmentSubmissions(assignment);
+        setSubmissionLoading(true);
+
+        try {
+            const updatedData = await getLeaderAssignments();
+            setLeaderData(updatedData);
+
+            const currentGroup = updatedData.find(g => g.studyGroupId === selectedStudy.id);
+            if (currentGroup) {
+                const targetGroup = currentGroup.assignmentGroups.find(
+                    g => g.assignment.assignmentId === assignment.id
+                );
+                if (targetGroup) {
+                    setSubmissions(targetGroup.submissions.map(convertSubmission));
+                    if (targetGroup.modelAnswer) {
+                        setSelectedAssignment(prev => prev ? {
+                            ...prev,
+                            modelAnswer: targetGroup.modelAnswer
+                        } : null);
+                    }
+                } else {
+                    setSubmissions([]);
+                }
+            } else {
+                setSubmissions([]);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("제출자 목록을 불러오지 못했습니다.");
+        } finally {
+            setSubmissionLoading(false);
+        }
     };
 
     return (
@@ -315,7 +378,6 @@ const Home: React.FC = () => {
             <main className="main-content">
                 <Header
                     selectedStudy={selectedStudy}
-                    onShareInviteCode={handleShareInviteCode}
                     onOpenAIAssignmentModal={handleOpenAIAssignmentModal}
                     onOpenManualAssignmentModal={handleOpenManualAssignmentModal}
                 />
@@ -323,6 +385,7 @@ const Home: React.FC = () => {
                 <HeroSection
                     selectedStudy={selectedStudy}
                     assignmentCount={selectedAssignments.length}
+                    onCopyInviteCode={handleShareInviteCode}
                 />
 
                 <section className="content-grid">
@@ -355,9 +418,14 @@ const Home: React.FC = () => {
                 />
             )}
 
-            {isAIAssignmentModalOpen && (
+            {isAIAssignmentModalOpen && selectedStudy && (
                 <AIAssignmentModal
+                    studyId={selectedStudy.id}
                     onClose={() => setIsAIAssignmentModalOpen(false)}
+                    onAssignmentCreated={async () => {
+                        await fetchMyAssignments();
+                        await fetchLeaderAssignments();
+                    }}
                 />
             )}
 
@@ -382,8 +450,10 @@ const Home: React.FC = () => {
                     submissions={submissions}
                     loading={submissionLoading}
                     onClose={() => setIsSubmissionListModalOpen(false)}
+                    onGrade={handleGradeSubmission}
                 />
             )}
+            <div style={{ display: 'none' }}>{leaderData.length}</div>
         </div>
     );
 };

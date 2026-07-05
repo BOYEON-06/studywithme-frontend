@@ -1,19 +1,56 @@
 import React, { useState } from "react";
 import {
     generateAIAssignment,
+    confirmAIAssignment,
     type GenerateAIAssignmentResponse,
 } from "../api/assignmentAPI";
 
 type AIAssignmentModalProps = {
+    studyId: number;
     onClose: () => void;
+    onAssignmentCreated: () => void;
 };
 
-const AIAssignmentModal: React.FC<AIAssignmentModalProps> = ({ onClose }) => {
+const AIAssignmentModal: React.FC<AIAssignmentModalProps> = ({
+    studyId,
+    onClose,
+    onAssignmentCreated,
+}) => {
     const [topic, setTopic] = useState("");
     const [difficulty, setDifficulty] = useState("중");
     const [additionalRequest, setAdditionalRequest] = useState("");
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<GenerateAIAssignmentResponse | null>(null);
+    const [dueDate, setDueDate] = useState("");
+    const [publishing, setPublishing] = useState(false);
+
+    const handlePublish = async () => {
+        if (!result) return;
+
+        if (!dueDate.trim()) {
+            alert("마감일을 입력하세요.");
+            return;
+        }
+
+        try {
+            setPublishing(true);
+            const formattedDueDate = dueDate.replace("T", " ") + ":00";
+            const res = await confirmAIAssignment(studyId, {
+                title: result.title,
+                content: result.content,
+                modelAnswer: result.modelAnswer,
+                dueDate: formattedDueDate,
+            });
+            alert(`${res.message}\n마감일: ${res.dueDate}`);
+            onAssignmentCreated();
+            onClose();
+        } catch (error) {
+            console.error(error);
+            alert("AI 과제 출제에 실패했습니다.");
+        } finally {
+            setPublishing(false);
+        }
+    };
 
     const handleGenerate = async () => {
         if (!topic.trim()) {
@@ -122,6 +159,35 @@ const AIAssignmentModal: React.FC<AIAssignmentModalProps> = ({ onClose }) => {
                         <div className="ai-result-section">
                             <strong>모범 답안</strong>
                             <p>{result.modelAnswer}</p>
+                        </div>
+
+                        <div className="ai-publish-section" style={{ marginTop: "20px", borderTop: "1px solid #eee", paddingTop: "20px" }}>
+                            <label style={{ display: "block", marginBottom: "15px", fontWeight: "bold" }}>
+                                마감일 설정
+                                <input
+                                    type="datetime-local"
+                                    value={dueDate}
+                                    onChange={(e) => setDueDate(e.target.value)}
+                                    style={{
+                                        display: "block",
+                                        width: "100%",
+                                        marginTop: "8px",
+                                        padding: "10px",
+                                        border: "1px solid #ddd",
+                                        borderRadius: "6px",
+                                        fontSize: "14px",
+                                        boxSizing: "border-box"
+                                    }}
+                                />
+                            </label>
+                            <button
+                                className="modal-submit-btn"
+                                onClick={handlePublish}
+                                disabled={publishing}
+                                style={{ width: "100%", padding: "12px", fontSize: "15px", fontWeight: "bold" }}
+                            >
+                                {publishing ? "출제 중..." : "이 문제로 과제 출제하기"}
+                            </button>
                         </div>
                     </div>
                 )}
