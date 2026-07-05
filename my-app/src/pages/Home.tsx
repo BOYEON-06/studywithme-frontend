@@ -33,6 +33,7 @@ import AIAssignmentModal from "../component/AIAssignmentModal";
 import ManualAssignmentModal from "../component/ManualAssignmentModal";
 import SubmitAssignmentModal from "../component/SubmitAssignmentModal";
 import SubmissionListModal from "../component/SubmissionListModal";
+import ChatPanel from "../component/ChatPanel";
 
 import type { Study } from "../types/study";
 import type { Assignment } from "../types/assignment";
@@ -63,6 +64,7 @@ const Home: React.FC = () => {
     const [isSubmissionListModalOpen, setIsSubmissionListModalOpen] =
         useState(false);
     const [leaderData, setLeaderData] = useState<LeaderAssignmentItem[]>([]);
+    const [isChatOpen, setIsChatOpen] = useState(false);
 
     const todos: Todo[] = [
         { id: 1, text: "AI 퀴즈 1회차 풀기", checked: true },
@@ -84,7 +86,7 @@ const Home: React.FC = () => {
     ];
 
     const convertStudy = (study: StudyListItem): Study => {
-        const savedUser = localStorage.getItem("user");
+        const savedUser = sessionStorage.getItem("user");
         const user = savedUser ? JSON.parse(savedUser) : null;
 
         return {
@@ -454,6 +456,43 @@ const Home: React.FC = () => {
                 />
             )}
             <div style={{ display: 'none' }}>{leaderData.length}</div>
+
+            {/* 실시간 채팅 플로팅 버튼 및 사이드 패널 마운트 */}
+            {selectedStudy && (
+                <>
+                    <button
+                        className="floating-chat-btn"
+                        onClick={() => setIsChatOpen(!isChatOpen)}
+                        style={{
+                            position: "fixed",
+                            bottom: "30px",
+                            right: "30px",
+                            width: "60px",
+                            height: "60px",
+                            borderRadius: "50%",
+                            background: "#1a73e8",
+                            color: "white",
+                            border: "none",
+                            boxShadow: "0 4px 16px rgba(26,115,232,0.3)",
+                            cursor: "pointer",
+                            zIndex: 999,
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            fontSize: "24px",
+                            transition: "all 0.2s ease"
+                        }}
+                    >
+                        💬
+                    </button>
+                    {isChatOpen && (
+                        <ChatPanel
+                            selectedStudy={selectedStudy}
+                            onClose={() => setIsChatOpen(false)}
+                        />
+                    )}
+                </>
+            )}
         </div>
     );
 };
