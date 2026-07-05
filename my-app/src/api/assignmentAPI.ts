@@ -15,6 +15,7 @@ export type GenerateAIAssignmentResponse = {
 export type CreateAssignmentRequest = {
     title: string;
     content: string;
+    dueDate: string;
 };
 
 export type CreateAssignmentResponse = {
@@ -42,6 +43,12 @@ export type MyAssignmentItem = {
     dueDate: string;
     isExpired: boolean;
     isSubmitted: boolean;
+    submittedContent?: string;
+    submittedAt?: string;
+    score?: number | null;
+    feedback?: string | null;
+    gradedAt?: string | null;
+    modelAnswer?: string | null;
 };
 
 export type AssignmentSubmissionItem = {
@@ -50,6 +57,8 @@ export type AssignmentSubmissionItem = {
     memberName: string;
     content: string;
     submittedAt: string;
+    score?: number | null;
+    feedback?: string | null;
 };
 
 export async function generateAIAssignment(data: GenerateAIAssignmentRequest) {
@@ -94,4 +103,81 @@ export async function getAssignmentSubmissions(
 
 export async function getMyAssignments() {
     return request<MyAssignmentItem[]>("/api/assignments/my-assignments");
+}
+
+export type GradeSubmissionRequest = {
+    score: number;
+    feedback: string;
+};
+
+export type GradeSubmissionResponse = {
+    message: string;
+};
+
+export async function gradeSubmission(
+    submissionId: number,
+    data: GradeSubmissionRequest
+) {
+    return request<GradeSubmissionResponse>(
+        `/api/assignments/submissions/${submissionId}/grade`,
+        {
+            method: "POST",
+            body: data,
+        }
+    );
+}
+
+export type ConfirmAIAssignmentRequest = {
+    title: string;
+    content: string;
+    modelAnswer: string;
+    dueDate: string;
+};
+
+export async function confirmAIAssignment(
+    studyId: number,
+    data: ConfirmAIAssignmentRequest
+) {
+    return request<CreateAssignmentResponse>(`/api/assignments/${studyId}/confirm-ai`, {
+        method: "POST",
+        body: data,
+    });
+}
+
+export type LeaderAssignmentItem = {
+    studyGroupId: number;
+    studyTitle: string;
+    assignmentGroups: {
+        assignment: {
+            studyId: number;
+            assignmentId: number;
+            creatorName: string;
+            studyTitle: string;
+            title: string;
+            content: string;
+            dueDate: string;
+            isExpired: boolean;
+            isSubmitted: boolean;
+            submittedContent: string | null;
+            submittedAt: string | null;
+            score: number | null;
+            feedback: string | null;
+            gradedAt: string | null;
+        };
+        modelAnswer: string | null;
+        submissions: {
+            submissionId: number;
+            memberId: number;
+            memberName: string;
+            content: string;
+            submittedAt: string;
+            score: number | null;
+            feedback: string | null;
+            gradedAt: string | null;
+        }[];
+    }[];
+};
+
+export async function getLeaderAssignments() {
+    return request<LeaderAssignmentItem[]>("/api/assignments/leader");
 }
