@@ -20,7 +20,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
-    const savedUser = localStorage.getItem("user");
+    const savedUser = sessionStorage.getItem("user");
     const user = savedUser ? JSON.parse(savedUser) : null;
 
     const handleLogout = () => {
@@ -28,7 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         if (!confirmLogout) return;
 
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
 
         window.location.href = "/";
     };

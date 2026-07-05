@@ -66,7 +66,7 @@ function Login() {
                 password,
             });
 
-            localStorage.setItem("user", JSON.stringify(data.user));
+            sessionStorage.setItem("user", JSON.stringify(data.user));
             alert(data.message || (isNewMember ? "회원가입 성공" : "로그인 성공"));
             navigate("/home");
         } catch (error) {
