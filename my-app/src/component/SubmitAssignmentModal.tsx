@@ -12,7 +12,8 @@ const SubmitAssignmentModal: React.FC<SubmitAssignmentModalProps> = ({
     onClose,
     onSubmit,
 }) => {
-    const [content, setContent] = useState("");
+    const isSubmitted = assignment.status === "제출완료";
+    const [content, setContent] = useState(assignment.submittedContent || "");
     const [submitting, setSubmitting] = useState(false);
 
     const handleSubmit = async () => {
@@ -43,8 +44,10 @@ const SubmitAssignmentModal: React.FC<SubmitAssignmentModalProps> = ({
             <div className="study-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                     <div>
-                        <p className="modal-label">Submit Assignment</p>
-                        <h2>과제 제출</h2>
+                        <p className="modal-label">
+                            {isSubmitted ? "Assignment Result" : "Submit Assignment"}
+                        </p>
+                        <h2>{isSubmitted ? "과제 결과 확인" : "과제 제출"}</h2>
                     </div>
 
                     <button className="modal-close-btn" onClick={handleClose}>
@@ -60,27 +63,59 @@ const SubmitAssignmentModal: React.FC<SubmitAssignmentModalProps> = ({
 
                 <div className="modal-form">
                     <label>
-                        제출 내용
+                        {isSubmitted ? "제출한 내용" : "제출 내용"}
                         <textarea
-                            placeholder="과제 답안을 입력하세요."
+                            placeholder={isSubmitted ? "" : "과제 답안을 입력하세요."}
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
+                            readOnly={isSubmitted}
+                            style={isSubmitted ? { backgroundColor: '#f1f3f4', color: '#5f6368', cursor: 'not-allowed' } : {}}
                         />
                     </label>
                 </div>
 
-                <div className="modal-actions">
-                    <button className="modal-cancel-btn" onClick={handleClose}>
-                        취소
-                    </button>
+                {isSubmitted && (
+                    <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {assignment.score !== null && assignment.score !== undefined ? (
+                            <div style={{ backgroundColor: '#e6f4ea', border: '1px solid #137333', padding: '12px', borderRadius: '6px' }}>
+                                <span style={{ fontWeight: 'bold', color: '#137333', display: 'block', fontSize: '13px', marginBottom: '4px' }}>채점 점수</span>
+                                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#137333' }}>{assignment.score}점 / 100점</span>
+                            </div>
+                        ) : (
+                            <div style={{ backgroundColor: '#f1f3f4', border: '1px solid #dadce0', padding: '12px', borderRadius: '6px' }}>
+                                <span style={{ fontWeight: 'bold', color: '#5f6368', fontSize: '13px' }}>아직 채점되지 않았습니다.</span>
+                            </div>
+                        )}
 
-                    <button
-                        className="modal-submit-btn"
-                        onClick={handleSubmit}
-                        disabled={submitting}
-                    >
-                        {submitting ? "제출 중..." : "제출하기"}
-                    </button>
+                        {assignment.feedback && (
+                            <div style={{ backgroundColor: '#f8f9fa', borderLeft: '4px solid #1a73e8', padding: '12px', borderRadius: '6px' }}>
+                                <span style={{ fontWeight: 'bold', color: '#1a73e8', display: 'block', fontSize: '13px', marginBottom: '4px' }}>스터디장 피드백</span>
+                                <p style={{ margin: 0, color: '#5f6368', fontSize: '13px', whiteSpace: 'pre-wrap' }}>{assignment.feedback}</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <div className="modal-actions">
+                    {isSubmitted ? (
+                        <button className="modal-submit-btn" onClick={handleClose}>
+                            확인
+                        </button>
+                    ) : (
+                        <>
+                            <button className="modal-cancel-btn" onClick={handleClose}>
+                                취소
+                            </button>
+
+                            <button
+                                className="modal-submit-btn"
+                                onClick={handleSubmit}
+                                disabled={submitting}
+                            >
+                                {submitting ? "제출 중..." : "제출하기"}
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

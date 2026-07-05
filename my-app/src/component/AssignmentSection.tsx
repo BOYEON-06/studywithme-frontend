@@ -61,13 +61,10 @@ const AssignmentSection: React.FC<AssignmentSectionProps> = ({
                                     <button
                                         className="assignment-submit-btn"
                                         onClick={() => onOpenSubmitModal(assignment)}
-                                        disabled={
-                                            assignment.status === "마감" ||
-                                            assignment.status === "제출완료"
-                                        }
+                                        disabled={assignment.status === "마감"}
                                     >
                                         {assignment.status === "제출완료"
-                                            ? "제출 완료"
+                                            ? "결과 확인"
                                             : assignment.status === "마감"
                                                 ? "마감"
                                                 : "제출"}

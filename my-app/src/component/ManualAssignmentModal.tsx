@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 type ManualAssignmentModalProps = {
     onClose: () => void;
-    onCreate: (title: string, content: string) => Promise<void>;
+    onCreate: (title: string, content: string, dueDate: string) => Promise<void>;
 };
 
 const ManualAssignmentModal: React.FC<ManualAssignmentModalProps> = ({
@@ -11,6 +11,7 @@ const ManualAssignmentModal: React.FC<ManualAssignmentModalProps> = ({
 }) => {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [dueDate, setDueDate] = useState("");
     const [creating, setCreating] = useState(false);
 
     const handleCreate = async () => {
@@ -24,9 +25,15 @@ const ManualAssignmentModal: React.FC<ManualAssignmentModalProps> = ({
             return;
         }
 
+        if (!dueDate.trim()) {
+            alert("마감일을 입력하세요.");
+            return;
+        }
+
         try {
             setCreating(true);
-            await onCreate(title, content);
+            const formattedDueDate = dueDate.replace("T", " ") + ":00";
+            await onCreate(title, content, formattedDueDate);
             onClose();
         } catch (error) {
             console.error(error);
@@ -63,6 +70,15 @@ const ManualAssignmentModal: React.FC<ManualAssignmentModalProps> = ({
                             placeholder="예: 첫 번째 과제 테스트"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
+                        />
+                    </label>
+
+                    <label>
+                        마감일
+                        <input
+                            type="datetime-local"
+                            value={dueDate}
+                            onChange={(e) => setDueDate(e.target.value)}
                         />
                     </label>
 
