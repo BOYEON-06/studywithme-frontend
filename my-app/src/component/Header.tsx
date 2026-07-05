@@ -3,14 +3,12 @@ import type { Study } from "../types/study";
 
 type HeaderProps = {
     selectedStudy: Study | null;
-    onShareInviteCode: () => void;
     onOpenAIAssignmentModal: () => void;
     onOpenManualAssignmentModal: () => void;
 };
 
 const Header: React.FC<HeaderProps> = ({
     selectedStudy,
-    onShareInviteCode,
     onOpenAIAssignmentModal,
     onOpenManualAssignmentModal,
 }) => {
@@ -27,10 +25,6 @@ const Header: React.FC<HeaderProps> = ({
             </div>
 
             <div className="topbar-actions">
-                <button className="top-btn" onClick={onShareInviteCode}>
-                    공유
-                </button>
-
                 <button
                     className={`top-btn primary ${!isLeader ? "disabled-btn" : ""}`}
                     onClick={onOpenManualAssignmentModal}

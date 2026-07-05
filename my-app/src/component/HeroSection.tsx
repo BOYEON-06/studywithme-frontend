@@ -4,11 +4,13 @@ import type { Study } from "../types/study";
 type HeroSectionProps = {
     selectedStudy: Study | null;
     assignmentCount: number;
+    onCopyInviteCode: () => void;
 };
 
 const HeroSection: React.FC<HeroSectionProps> = ({
     selectedStudy,
     assignmentCount,
+    onCopyInviteCode,
 }) => {
     return (
         <section className="hero-card">
@@ -45,12 +47,17 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                         <p>진행중 과제</p>
                     </div>
 
-                    <div className="summary-box">
+                    <div 
+                        className="summary-box"
+                        onClick={onCopyInviteCode}
+                        style={{ cursor: selectedStudy ? 'pointer' : 'default' }}
+                        title={selectedStudy ? "클릭하여 초대코드 복사" : ""}
+                    >
                         <h3>
                             {selectedStudy?.inviteCode || "-"}
                         </h3>
 
-                        <p>초대코드</p>
+                        <p>초대코드 {selectedStudy ? "(클릭하여 복사)" : ""}</p>
                     </div>
                 </div>
             </div>
