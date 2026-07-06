@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Home.css";
+import Toast from "../component/Toast";
 
 import {
     createStudy,
@@ -33,6 +34,7 @@ import AIAssignmentModal from "../component/AIAssignmentModal";
 import ManualAssignmentModal from "../component/ManualAssignmentModal";
 import SubmitAssignmentModal from "../component/SubmitAssignmentModal";
 import SubmissionListModal from "../component/SubmissionListModal";
+import AllAssignmentsModal from "../component/AllAssignmentsModal";
 import ChatPanel from "../component/ChatPanel";
 
 import type { Study } from "../types/study";
@@ -41,6 +43,11 @@ import type { Todo } from "../types/todo";
 import type { Submission } from "../types/submission";
 
 const Home: React.FC = () => {
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const showToast = (msg: string) => {
+        setToastMessage(msg);
+    };
+
     const [studies, setStudies] = useState<Study[]>([]);
     const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
     const [studyListLoading, setStudyListLoading] = useState(false);
@@ -62,6 +69,8 @@ const Home: React.FC = () => {
     const [isSubmitAssignmentModalOpen, setIsSubmitAssignmentModalOpen] =
         useState(false);
     const [isSubmissionListModalOpen, setIsSubmissionListModalOpen] =
+        useState(false);
+    const [isAllAssignmentsModalOpen, setIsAllAssignmentsModalOpen] =
         useState(false);
     const [leaderData, setLeaderData] = useState<LeaderAssignmentItem[]>([]);
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -154,7 +163,7 @@ const Home: React.FC = () => {
             }
         } catch (error) {
             console.error(error);
-            alert("내 스터디 목록을 불러오지 못했습니다. 로그인 상태를 확인해주세요.");
+            showToast("내 스터디 목록을 불러오지 못했습니다. 로그인 상태를 확인해주세요.");
         } finally {
             setStudyListLoading(false);
         }
@@ -170,7 +179,7 @@ const Home: React.FC = () => {
             setAssignments(convertedAssignments);
         } catch (error) {
             console.error(error);
-            alert("과제 목록을 불러오지 못했습니다. 로그인 상태를 확인해주세요.");
+            showToast("과제 목록을 불러오지 못했습니다. 로그인 상태를 확인해주세요.");
         } finally {
             setAssignmentLoading(false);
         }
@@ -194,8 +203,49 @@ const Home: React.FC = () => {
     }, []);
 
     const selectedAssignments = selectedStudy
-        ? assignments.filter((assignment) => assignment.studyId === selectedStudy.id)
+        ? [...assignments]
+            .filter((assignment) => assignment.studyId === selectedStudy.id)
+            .sort((a, b) => {
+                const aExpired = a.status === "마감";
+                const bExpired = b.status === "마감";
+                if (aExpired !== bExpired) {
+                    return aExpired ? 1 : -1;
+                }
+                return b.due.localeCompare(a.due);
+            })
         : [];
+
+    let progressRate = 0;
+
+    if (selectedStudy) {
+        if (selectedStudy.role === "스터디장") {
+            const currentLeaderGroup = leaderData.find(g => g.studyGroupId === selectedStudy.id);
+            if (currentLeaderGroup && currentLeaderGroup.assignmentGroups.length > 0) {
+                const allSubmitterIds = new Set<number>();
+                let totalSubmissionsCount = 0;
+                currentLeaderGroup.assignmentGroups.forEach(group => {
+                    totalSubmissionsCount += group.submissions.length;
+                    group.submissions.forEach(sub => {
+                        allSubmitterIds.add(sub.memberId);
+                    });
+                });
+                const totalMembers = allSubmitterIds.size;
+                const totalAssignments = currentLeaderGroup.assignmentGroups.length;
+                
+                if (totalMembers > 0 && totalAssignments > 0) {
+                    progressRate = Math.round((totalSubmissionsCount / (totalAssignments * totalMembers)) * 100);
+                }
+            }
+        } else {
+            const submittedCount = selectedAssignments.filter(
+                (assignment) => assignment.status === "제출완료"
+            ).length;
+            
+            progressRate = selectedAssignments.length > 0
+                ? Math.round((submittedCount / selectedAssignments.length) * 100)
+                : 0;
+        }
+    }
 
     const handleCreateStudy = async (title: string, description: string) => {
         const result = await createStudy({
@@ -203,7 +253,7 @@ const Home: React.FC = () => {
             description,
         });
 
-        alert(`${result.message}\n초대코드: ${result.inviteCode}`);
+        showToast(`${result.message}\n초대코드: ${result.inviteCode}`);
 
         await fetchMyStudyList();
     };
@@ -213,7 +263,7 @@ const Home: React.FC = () => {
             inviteCode,
         });
 
-        alert(result.message);
+        showToast(result.message);
 
         await fetchMyStudyList();
         await fetchMyAssignments();
@@ -221,32 +271,32 @@ const Home: React.FC = () => {
 
     const handleShareInviteCode = async () => {
         if (!selectedStudy) {
-            alert("스터디를 먼저 선택하세요.");
+            showToast("스터디를 먼저 선택하세요.");
             return;
         }
 
         if (!selectedStudy.inviteCode) {
-            alert("초대코드가 없습니다.");
+            showToast("초대코드가 없습니다.");
             return;
         }
 
         try {
             await navigator.clipboard.writeText(selectedStudy.inviteCode);
-            alert(`초대코드가 복사되었습니다.\n${selectedStudy.inviteCode}`);
+            showToast(`초대코드가 복사되었습니다.\n${selectedStudy.inviteCode}`);
         } catch (error) {
             console.error(error);
-            alert(`초대코드: ${selectedStudy.inviteCode}`);
+            showToast(`초대코드: ${selectedStudy.inviteCode}`);
         }
     };
 
     const checkStudyLeader = () => {
         if (!selectedStudy) {
-            alert("스터디를 먼저 선택하세요.");
+            showToast("스터디를 먼저 선택하세요.");
             return false;
         }
 
         if (selectedStudy.role !== "스터디장") {
-            alert("스터디장만 사용할 수 있는 기능입니다.");
+            showToast("스터디장만 사용할 수 있는 기능입니다.");
             return false;
         }
 
@@ -276,7 +326,7 @@ const Home: React.FC = () => {
             dueDate,
         });
 
-        alert(`${result.message}\n마감일: ${result.dueDate}`);
+        showToast(`${result.message}\n마감일: ${result.dueDate}`);
 
         await fetchMyAssignments();
         await fetchLeaderAssignments();
@@ -296,7 +346,7 @@ const Home: React.FC = () => {
             { content }
         );
 
-        alert(result.message);
+        showToast(result.message);
 
         await fetchMyAssignments();
     };
@@ -309,7 +359,7 @@ const Home: React.FC = () => {
         if (!selectedAssignment || !selectedStudy) return;
         try {
             const result = await gradeSubmission(submissionId, { score, feedback });
-            alert(result.message);
+            showToast(result.message);
             const updatedData = await getLeaderAssignments();
             setLeaderData(updatedData);
 
@@ -324,7 +374,7 @@ const Home: React.FC = () => {
             }
         } catch (error) {
             console.error(error);
-            alert("채점에 실패했습니다.");
+            showToast("채점에 실패했습니다.");
         }
     };
 
@@ -360,7 +410,7 @@ const Home: React.FC = () => {
             }
         } catch (error) {
             console.error(error);
-            alert("제출자 목록을 불러오지 못했습니다.");
+            showToast("제출자 목록을 불러오지 못했습니다.");
         } finally {
             setSubmissionLoading(false);
         }
@@ -387,6 +437,7 @@ const Home: React.FC = () => {
                 <HeroSection
                     selectedStudy={selectedStudy}
                     assignmentCount={selectedAssignments.length}
+                    progressRate={progressRate}
                     onCopyInviteCode={handleShareInviteCode}
                 />
 
@@ -397,6 +448,7 @@ const Home: React.FC = () => {
                         isLeader={selectedStudy?.role === "스터디장"}
                         onOpenSubmitModal={handleOpenSubmitModal}
                         onOpenSubmissionListModal={handleOpenSubmissionListModal}
+                        onOpenAllAssignmentsModal={() => setIsAllAssignmentsModalOpen(true)}
                     />
 
                     <TodoSection todos={todos} />
@@ -455,6 +507,16 @@ const Home: React.FC = () => {
                     onGrade={handleGradeSubmission}
                 />
             )}
+            
+            {isAllAssignmentsModalOpen && selectedStudy && (
+                <AllAssignmentsModal
+                    assignments={selectedAssignments}
+                    isLeader={selectedStudy.role === "스터디장"}
+                    onClose={() => setIsAllAssignmentsModalOpen(false)}
+                    onOpenSubmitModal={handleOpenSubmitModal}
+                    onOpenSubmissionListModal={handleOpenSubmissionListModal}
+                />
+            )}
             <div style={{ display: 'none' }}>{leaderData.length}</div>
 
             {/* 실시간 채팅 플로팅 버튼 및 사이드 패널 마운트 */}
@@ -492,6 +554,12 @@ const Home: React.FC = () => {
                         />
                     )}
                 </>
+            )}
+            {toastMessage && (
+                <Toast 
+                    message={toastMessage} 
+                    onClose={() => setToastMessage(null)} 
+                />
             )}
         </div>
     );

@@ -860,3 +860,571 @@ button {
     line-height: 1.7;
     white-space: pre-wrap;
 }
+
+/* 과제 상태 배지 스타일 갱신 및 보완 */
+.status-badge.submitted {
+    background: #e6f4ea;
+    color: #137333;
+}
+
+.status-badge.expired {
+    background: #fce8e6;
+    color: #c5221f;
+}
+
+.status-badge.pending {
+    background: #fef7e0;
+    color: #b06000;
+}
+
+/* SubmissionListModal 및 AIAssignmentModal 인라인 스타일 이관 */
+.model-answer-section {
+    margin-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding-top: 12px;
+}
+
+.model-answer-toggle-btn {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.model-answer-toggle-btn.active {
+    background-color: #f1f3f4;
+    color: #5f6368;
+}
+
+.model-answer-box {
+    margin-top: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 13px;
+    color: #333;
+    line-height: 1.6;
+}
+
+.model-answer-title {
+    display: block;
+    margin-bottom: 6px;
+    color: #1a73e8;
+}
+
+.model-answer-text {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.submission-item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+
+.submission-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.submission-header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.submission-date {
+    font-size: 12px;
+    color: #888;
+}
+
+.submission-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.submission-score-badge {
+    background-color: #e6f4ea;
+    color: #137333;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.submission-edit-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    background-color: #f1f3f4;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.submission-grade-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    background-color: #1a73e8;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #fff;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.submission-grade-btn:hover {
+    background-color: #1557b0;
+}
+
+.submission-content {
+    margin: 4px 0 8px 0;
+    font-size: 14px;
+    color: #333;
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+.submission-feedback-box {
+    background-color: #f8f9fa;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    border-left: 3px solid #1a73e8;
+}
+
+.feedback-title {
+    color: #1a73e8;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.feedback-text {
+    margin: 0;
+    color: #5f6368;
+}
+
+.submission-grading-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #dadce0;
+    margin-top: 8px;
+}
+
+.grading-score-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.grading-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+}
+
+.grading-input {
+    width: 80px;
+    padding: 6px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.grading-input:focus {
+    border-color: #6366f1;
+}
+
+.grading-max-score {
+    font-size: 12px;
+    color: #666;
+}
+
+.grading-feedback-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.grading-textarea {
+    padding: 10px;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    resize: vertical;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.grading-textarea:focus {
+    border-color: #6366f1;
+}
+
+.grading-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.grading-cancel-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    background-color: #fff;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.grading-save-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    background-color: #1a73e8;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* AIAssignmentModal 관련 추가 스타일 */
+.ai-publish-section {
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.publish-due-label {
+    display: block;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.publish-due-input {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.publish-due-input:focus {
+    border-color: #6366f1;
+}
+
+.publish-submit-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+/* Toast 컴포넌트 스타일 */
+.custom-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(17, 24, 39, 0.9);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    padding: 14px 22px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 9999;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: pre-wrap;
+    animation: toastFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1), toastFadeOut 0.35s cubic-bezier(0.16, 1, 0.3, 1) 2.65s forwards;
+}
+
+.toast-icon {
+    font-size: 1.1rem;
+}
+
+@keyframes toastFadeIn {
+    from {
+        bottom: 10px;
+        opacity: 0;
+    }
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@keyframes toastFadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* ConfirmModal 컴포넌트 스타일 */
+.confirm-modal {
+    max-width: 400px !important;
+    text-align: center;
+    padding: 30px 24px 24px 24px !important;
+}
+
+.confirm-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.confirm-icon {
+    font-size: 2.5rem;
+}
+
+.confirm-message {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: center !important;
+    gap: 12px;
+}
+
+.confirm-btn-cancel,
+.confirm-btn-confirm {
+    flex: 1;
+    padding: 12px 18px !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+}
+
+.confirm-btn-cancel {
+    background: #f3f4f6 !important;
+    color: #4b5563 !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.confirm-btn-cancel:hover {
+    background: #e5e7eb !important;
+}
+
+.confirm-btn-confirm {
+    background: #dc2626 !important;
+    color: white !important;
+    border: none !important;
+}
+
+.confirm-btn-confirm:hover {
+    background: #b91c1c !important;
+}
+
+/* AI 과제 로딩 스켈레톤 (Shimmer) 스타일 */
+.ai-loading-shimmer {
+    margin-top: 24px;
+    padding: 20px;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.shimmer-title,
+.shimmer-label,
+.shimmer-line {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmerEffect 1.5s infinite;
+    border-radius: 4px;
+}
+
+.shimmer-title {
+    height: 24px;
+    width: 60%;
+}
+
+.shimmer-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.shimmer-label {
+    height: 16px;
+    width: 25%;
+    margin-bottom: 4px;
+}
+
+.shimmer-line {
+    height: 14px;
+}
+
+.shimmer-line.long {
+    width: 100%;
+}
+
+.shimmer-line.medium {
+    width: 75%;
+}
+
+.shimmer-line.short {
+    width: 40%;
+}
+
+@keyframes shimmerEffect {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* 페이드인 애니메이션 */
+.fade-in {
+    animation: fadeInEffect 0.4s ease forwards;
+}
+
+@keyframes fadeInEffect {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* AllAssignmentsModal 컴포넌트 스타일 */
+.all-assignments-modal {
+    max-width: 780px !important;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.all-assignments-content {
+    margin-top: 10px;
+}
+
+.assignments-table-container {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+}
+
+.assignments-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.92rem;
+}
+
+.assignments-table th,
+.assignments-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.assignments-table th {
+    background-color: #f8f9fc;
+    color: #4b5563;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.assignments-table tr:last-child td {
+    border-bottom: none;
+}
+
+.assignment-title-cell {
+    max-width: 320px;
+}
+
+.assignment-cell-title {
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.assignment-cell-desc {
+    font-size: 0.82rem;
+    color: #6b7280;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.assignment-due-cell {
+    color: #4b5563;
+    font-weight: 500;
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+
+.assignment-action-btn {
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.assignment-action-btn.primary {
+    background-color: #111827;
+    color: #ffffff;
+    border: none;
+}
+
+.assignment-action-btn.primary:hover {
+    background-color: #374151;
+}
+
+.assignment-action-btn.primary:disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+}

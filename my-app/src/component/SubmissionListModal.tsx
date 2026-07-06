@@ -79,38 +79,18 @@ const SubmissionListModal: React.FC<SubmissionListModalProps> = ({
                     <span>마감일: {assignment.due}</span>
 
                     {assignment.modelAnswer && (
-                        <div style={{ marginTop: '12px', borderTop: '1px solid rgba(0,0,0,0.08)', paddingTop: '12px' }}>
+                        <div className="model-answer-section">
                             <button
                                 onClick={() => setShowAIAnswer(!showAIAnswer)}
-                                style={{
-                                    backgroundColor: showAIAnswer ? '#f1f3f4' : '#e8f0fe',
-                                    color: showAIAnswer ? '#5f6368' : '#1a73e8',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    padding: '6px 12px',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '6px'
-                                }}
+                                className={`model-answer-toggle-btn ${showAIAnswer ? "active" : ""}`}
                             >
                                 💡 {showAIAnswer ? "AI 모범 답안 접기" : "AI 모범 답안 확인하기"}
                             </button>
                             
                             {showAIAnswer && (
-                                <div style={{
-                                    marginTop: '10px',
-                                    backgroundColor: '#f8f9fa',
-                                    border: '1px solid #dadce0',
-                                    borderRadius: '6px',
-                                    padding: '12px',
-                                    fontSize: '13px',
-                                    color: '#333'
-                                }}>
-                                    <strong style={{ display: 'block', marginBottom: '6px', color: '#1a73e8' }}>[AI 추천 답변]</strong>
-                                    <p style={{ margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{assignment.modelAnswer}</p>
+                                <div className="model-answer-box">
+                                    <strong className="model-answer-title">[AI 추천 답변]</strong>
+                                    <p className="model-answer-text">{assignment.modelAnswer}</p>
                                 </div>
                             )}
                         </div>
@@ -128,30 +108,23 @@ const SubmissionListModal: React.FC<SubmissionListModalProps> = ({
 
                     {!loading &&
                         submissions.map((submission) => (
-                            <div className="submission-item" key={submission.submissionId} style={{ display: 'flex', flexDirection: 'column', gap: '12px', borderBottom: '1px solid #eee', paddingBottom: '16px', marginBottom: '16px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div className="submission-header" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div className="submission-item" key={submission.submissionId}>
+                                <div className="submission-row">
+                                    <div className="submission-header-info">
                                         <strong>{submission.memberName}</strong>
-                                        <span style={{ fontSize: '12px', color: '#888' }}>{submission.submittedAt}</span>
+                                        <span className="submission-date">{submission.submittedAt}</span>
                                     </div>
                                     
                                     {gradingId !== submission.submissionId && (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <div className="submission-actions">
                                             {submission.score !== undefined && submission.score !== null ? (
                                                 <>
-                                                    <span style={{ 
-                                                        backgroundColor: '#e6f4ea', 
-                                                        color: '#137333', 
-                                                        padding: '4px 8px', 
-                                                        borderRadius: '4px', 
-                                                        fontSize: '13px', 
-                                                        fontWeight: 'bold' 
-                                                    }}>
+                                                    <span className="submission-score-badge">
                                                         {submission.score}점
                                                     </span>
                                                     <button 
                                                         onClick={() => handleStartGrade(submission)}
-                                                        style={{ padding: '4px 8px', fontSize: '12px', backgroundColor: '#f1f3f4', border: '1px solid #dadce0', borderRadius: '4px', cursor: 'pointer' }}
+                                                        className="submission-edit-btn"
                                                     >
                                                         수정
                                                     </button>
@@ -159,16 +132,7 @@ const SubmissionListModal: React.FC<SubmissionListModalProps> = ({
                                             ) : (
                                                 <button 
                                                     onClick={() => handleStartGrade(submission)}
-                                                    style={{ 
-                                                        padding: '6px 12px', 
-                                                        fontSize: '12px', 
-                                                        backgroundColor: '#1a73e8', 
-                                                        border: 'none', 
-                                                        borderRadius: '4px', 
-                                                        cursor: 'pointer',
-                                                        color: '#fff',
-                                                        fontWeight: 'bold'
-                                                    }}
+                                                    className="submission-grade-btn"
                                                 >
                                                     채점하기
                                                 </button>
@@ -177,28 +141,19 @@ const SubmissionListModal: React.FC<SubmissionListModalProps> = ({
                                     )}
                                 </div>
 
-                                <p style={{ margin: '4px 0 8px 0', fontSize: '14px', color: '#333', whiteSpace: 'pre-wrap' }}>{submission.content}</p>
+                                <p className="submission-content">{submission.content}</p>
 
                                 {gradingId !== submission.submissionId && submission.feedback && (
-                                    <div style={{ backgroundColor: '#f8f9fa', padding: '10px 12px', borderRadius: '6px', fontSize: '13px', borderLeft: '3px solid #1a73e8' }}>
-                                        <strong style={{ color: '#1a73e8', display: 'block', marginBottom: '4px' }}>피드백</strong>
-                                        <p style={{ margin: 0, color: '#5f6368' }}>{submission.feedback}</p>
+                                    <div className="submission-feedback-box">
+                                        <strong className="feedback-title">피드백</strong>
+                                        <p className="feedback-text">{submission.feedback}</p>
                                     </div>
                                 )}
 
                                 {gradingId === submission.submissionId && (
-                                    <div style={{ 
-                                        display: 'flex', 
-                                        flexDirection: 'column', 
-                                        gap: '10px', 
-                                        backgroundColor: '#f8f9fa', 
-                                        padding: '14px', 
-                                        borderRadius: '8px', 
-                                        border: '1px solid #dadce0',
-                                        marginTop: '8px'
-                                    }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>점수:</label>
+                                    <div className="submission-grading-form">
+                                        <div className="grading-score-row">
+                                            <label className="grading-label">점수:</label>
                                             <input 
                                                 type="number" 
                                                 min="0" 
@@ -206,41 +161,32 @@ const SubmissionListModal: React.FC<SubmissionListModalProps> = ({
                                                 value={scoreInput} 
                                                 onChange={(e) => setScoreInput(e.target.value)}
                                                 placeholder="0-100"
-                                                style={{ width: '80px', padding: '6px', border: '1px solid #dadce0', borderRadius: '4px' }}
+                                                className="grading-input"
                                             />
-                                            <span style={{ fontSize: '12px', color: '#666' }}>점 / 100점</span>
+                                            <span className="grading-max-score">점 / 100점</span>
                                         </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>피드백:</label>
+                                        <div className="grading-feedback-row">
+                                            <label className="grading-label">피드백:</label>
                                             <textarea 
                                                 value={feedbackInput} 
                                                 onChange={(e) => setFeedbackInput(e.target.value)}
                                                 placeholder="스터디원에게 전달할 피드백을 입력하세요."
                                                 rows={3}
-                                                style={{ padding: '8px', border: '1px solid #dadce0', borderRadius: '4px', resize: 'vertical', fontSize: '13px', fontFamily: 'inherit' }}
+                                                className="grading-textarea"
                                             />
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '4px' }}>
+                                        <div className="grading-actions">
                                             <button 
                                                 onClick={handleCancelGrade}
                                                 disabled={isSubmitting}
-                                                style={{ padding: '6px 12px', fontSize: '12px', backgroundColor: '#fff', border: '1px solid #dadce0', borderRadius: '4px', cursor: 'pointer' }}
+                                                className="grading-cancel-btn"
                                             >
                                                 취소
                                             </button>
                                             <button 
                                                 onClick={() => handleSubmitGrade(submission.submissionId)}
                                                 disabled={isSubmitting}
-                                                style={{ 
-                                                    padding: '6px 12px', 
-                                                    fontSize: '12px', 
-                                                    backgroundColor: '#1a73e8', 
-                                                    border: 'none', 
-                                                    borderRadius: '4px', 
-                                                    cursor: 'pointer',
-                                                    color: '#fff',
-                                                    fontWeight: 'bold'
-                                                }}
+                                                className="grading-save-btn"
                                             >
                                                 {isSubmitting ? "저장 중..." : "저장"}
                                             </button>

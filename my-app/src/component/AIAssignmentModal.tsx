@@ -147,8 +147,25 @@ const AIAssignmentModal: React.FC<AIAssignmentModalProps> = ({
                     </button>
                 </div>
 
-                {result && (
-                    <div className="ai-result-box">
+                {loading && (
+                    <div className="ai-loading-shimmer">
+                        <div className="shimmer-title"></div>
+                        <div className="shimmer-section">
+                            <div className="shimmer-label"></div>
+                            <div className="shimmer-line long"></div>
+                            <div className="shimmer-line medium"></div>
+                            <div className="shimmer-line short"></div>
+                        </div>
+                        <div className="shimmer-section">
+                            <div className="shimmer-label"></div>
+                            <div className="shimmer-line long"></div>
+                            <div className="shimmer-line short"></div>
+                        </div>
+                    </div>
+                )}
+
+                {result && !loading && (
+                    <div className="ai-result-box fade-in">
                         <h3>{result.title}</h3>
 
                         <div className="ai-result-section">
@@ -161,31 +178,21 @@ const AIAssignmentModal: React.FC<AIAssignmentModalProps> = ({
                             <p>{result.modelAnswer}</p>
                         </div>
 
-                        <div className="ai-publish-section" style={{ marginTop: "20px", borderTop: "1px solid #eee", paddingTop: "20px" }}>
-                            <label style={{ display: "block", marginBottom: "15px", fontWeight: "bold" }}>
+                        <div className="ai-publish-section">
+                            <label className="publish-due-label">
                                 마감일 설정
                                 <input
                                     type="datetime-local"
                                     value={dueDate}
                                     onChange={(e) => setDueDate(e.target.value)}
-                                    style={{
-                                        display: "block",
-                                        width: "100%",
-                                        marginTop: "8px",
-                                        padding: "10px",
-                                        border: "1px solid #ddd",
-                                        borderRadius: "6px",
-                                        fontSize: "14px",
-                                        boxSizing: "border-box"
-                                    }}
+                                    className="publish-due-input"
                                 />
                             </label>
                             <button
-                                className="modal-submit-btn"
+                                className="modal-submit-btn publish-submit-btn"
                                 onClick={handlePublish}
                                 disabled={publishing}
-                                style={{ width: "100%", padding: "12px", fontSize: "15px", fontWeight: "bold" }}
-                            >
+                             >
                                 {publishing ? "출제 중..." : "이 문제로 과제 출제하기"}
                             </button>
                         </div>

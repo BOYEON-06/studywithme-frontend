@@ -4,12 +4,14 @@ import type { Study } from "../types/study";
 type HeroSectionProps = {
     selectedStudy: Study | null;
     assignmentCount: number;
+    progressRate: number;
     onCopyInviteCode: () => void;
 };
 
 const HeroSection: React.FC<HeroSectionProps> = ({
     selectedStudy,
     assignmentCount,
+    progressRate,
     onCopyInviteCode,
 }) => {
     return (
@@ -21,14 +23,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 
                 <h2>
                     {selectedStudy
-                        ? "과제, 일정, 프로젝트 현황을 한 번에 관리하세요"
+                        ? (selectedStudy.description || "등록된 스터디 설명이 없습니다.")
                         : "왼쪽에서 스터디를 생성하거나 참여하세요"}
                 </h2>
 
-                <p>
-                    {selectedStudy?.description ||
-                        "AI 자동 퀴즈, 과제 분석, 팀 프로젝트 진행률 확인까지. 스터디 운영에 필요한 정보를 한 화면에서 빠르게 확인할 수 있습니다."}
-                </p>
+                {!selectedStudy && (
+                    <p>
+                        AI 자동 퀴즈, 과제 분석, 팀 프로젝트 진행률 확인까지. 스터디 운영에 필요한 정보를 한 화면에서 빠르게 확인할 수 있습니다.
+                    </p>
+                )}
 
                 <div className="hero-summary">
                     <div className="summary-box">
@@ -65,20 +68,20 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             <div className="hero-right">
                 <div className="progress-card">
                     <p className="progress-title">
-                        이번 주 프로젝트 진행률
+                        이번 주 과제 진행률
                     </p>
 
                     <div className="progress-bar">
                         <div
                             className="progress-fill"
                             style={{
-                                width: selectedStudy ? "78%" : "0%",
+                                width: selectedStudy ? `${progressRate}%` : "0%",
                             }}
                         ></div>
                     </div>
 
                     <strong>
-                        {selectedStudy ? "78%" : "0%"}
+                        {selectedStudy ? `${progressRate}%` : "0%"}
                     </strong>
                 </div>
             </div>

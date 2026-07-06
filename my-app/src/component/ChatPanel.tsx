@@ -256,30 +256,33 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ selectedStudy, onClose }) => {
 
                 .message-bubble {
                     padding: 10px 14px;
-                    border-radius: 12px;
+                    border-radius: 14px;
                     font-size: 13px;
                     line-height: 1.5;
                     word-break: break-all;
+                    font-weight: 500;
                 }
 
                 .message-row.mine .message-bubble {
-                    background: #1a73e8;
+                    background: #6366f1;
                     color: #fff;
                     border-top-right-radius: 2px;
-                    box-shadow: 0 4px 10px rgba(26, 115, 232, 0.15);
+                    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
                 }
 
                 .message-row.others .message-bubble {
-                    background: #f1f3f4;
-                    color: #333;
+                    background: #f3f4f6;
+                    color: #1f2937;
                     border-top-left-radius: 2px;
-                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+                    border: 1px solid #e5e7eb;
                 }
 
                 .message-meta {
                     font-size: 10px;
-                    color: #9aa0a6;
+                    color: #9ca3af;
                     margin-top: 4px;
+                    font-weight: 500;
                 }
 
                 .chat-input-bar {
@@ -336,8 +339,30 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ selectedStudy, onClose }) => {
                     margin-right: 6px;
                 }
 
-                .connection-status.online { background-color: #34a853; }
-                .connection-status.offline { background-color: #ea4335; }
+                .connection-status.online {
+                    background-color: #34a853;
+                    box-shadow: 0 0 0 0 rgba(52, 168, 83, 0.7);
+                    animation: pulseOnline 1.6s infinite;
+                }
+
+                .connection-status.offline {
+                    background-color: #ea4335;
+                }
+
+                @keyframes pulseOnline {
+                    0% {
+                        transform: scale(0.95);
+                        box-shadow: 0 0 0 0 rgba(52, 168, 83, 0.7);
+                    }
+                    70% {
+                        transform: scale(1);
+                        box-shadow: 0 0 0 6px rgba(52, 168, 83, 0);
+                    }
+                    100% {
+                        transform: scale(0.95);
+                        box-shadow: 0 0 0 0 rgba(52, 168, 83, 0);
+                    }
+                }
             `}</style>
 
             <div className="chat-sidebar" onClick={(e) => e.stopPropagation()}>

@@ -24,23 +24,23 @@ const Header: React.FC<HeaderProps> = ({
                 <h1>{selectedStudy ? selectedStudy.name : "스터디를 선택하세요"}</h1>
             </div>
 
-            <div className="topbar-actions">
-                <button
-                    className={`top-btn primary ${!isLeader ? "disabled-btn" : ""}`}
-                    onClick={onOpenManualAssignmentModal}
-                    disabled={!isLeader}
-                >
-                    {isLeader ? "수동 과제 출제" : "스터디장 전용"}
-                </button>
+            {isLeader && (
+                <div className="topbar-actions">
+                    <button
+                        className="top-btn primary"
+                        onClick={onOpenManualAssignmentModal}
+                    >
+                        수동 과제 출제
+                    </button>
 
-                <button
-                    className={`top-btn primary ${!isLeader ? "disabled-btn" : ""}`}
-                    onClick={onOpenAIAssignmentModal}
-                    disabled={!isLeader}
-                >
-                    {isLeader ? "AI 과제 출제" : "스터디장 전용"}
-                </button>
-            </div>
+                    <button
+                        className="top-btn primary"
+                        onClick={onOpenAIAssignmentModal}
+                    >
+                        AI 과제 출제
+                    </button>
+                </div>
+            )}
         </header>
     );
 };

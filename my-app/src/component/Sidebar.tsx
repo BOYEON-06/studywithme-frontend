@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import type { Study } from "../types/study";
+import ConfirmModal from "./ConfirmModal";
 
 type SidebarProps = {
     studies: Study[];
@@ -20,17 +21,21 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
+    const [showConfirm, setShowConfirm] = useState(false);
     const savedUser = sessionStorage.getItem("user");
     const user = savedUser ? JSON.parse(savedUser) : null;
 
-    const handleLogout = () => {
-        const confirmLogout = window.confirm("로그아웃 하시겠습니까?");
+    const handleLogoutClick = () => {
+        setShowConfirm(true);
+    };
 
-        if (!confirmLogout) return;
-
+    const handleConfirmLogout = () => {
         sessionStorage.removeItem("user");
-
         window.location.href = "/";
+    };
+
+    const handleCancelLogout = () => {
+        setShowConfirm(false);
     };
 
     return (
@@ -158,7 +163,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="sidebar-bottom">
                 <button
                     className="bottom-link"
-                    onClick={handleLogout}
+                    onClick={handleLogoutClick}
                 >
                     <span>🚪</span>
 
@@ -171,6 +176,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                     {sidebarOpen && <span>설정</span>}
                 </button>
             </div>
+            
+            {showConfirm && (
+                <ConfirmModal 
+                    message="로그아웃 하시겠습니까?"
+                    onConfirm={handleConfirmLogout}
+                    onCancel={handleCancelLogout}
+                />
+            )}
         </aside>
     );
 };

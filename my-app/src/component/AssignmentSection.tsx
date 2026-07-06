@@ -7,6 +7,7 @@ type AssignmentSectionProps = {
     isLeader: boolean;
     onOpenSubmitModal: (assignment: Assignment) => void;
     onOpenSubmissionListModal: (assignment: Assignment) => void;
+    onOpenAllAssignmentsModal: () => void;
 };
 
 const AssignmentSection: React.FC<AssignmentSectionProps> = ({
@@ -15,12 +16,13 @@ const AssignmentSection: React.FC<AssignmentSectionProps> = ({
     isLeader,
     onOpenSubmitModal,
     onOpenSubmissionListModal,
+    onOpenAllAssignmentsModal,
 }) => {
     return (
         <div className="content-card large">
             <div className="card-title-row">
-                <h3>진행중 과제</h3>
-                <button>전체보기</button>
+                <h3>출제된 과제</h3>
+                <button onClick={onOpenAllAssignmentsModal}>전체보기</button>
             </div>
 
             <div className="assignment-list">
@@ -46,7 +48,12 @@ const AssignmentSection: React.FC<AssignmentSectionProps> = ({
                             </div>
 
                             <div className="assignment-right">
-                                <span className={`status-badge ${assignment.status}`}>
+                                <span className={`status-badge ${assignment.status === "제출완료"
+                                        ? "submitted"
+                                        : assignment.status === "마감"
+                                            ? "expired"
+                                            : "pending"
+                                    }`}>
                                     {assignment.status}
                                 </span>
 
