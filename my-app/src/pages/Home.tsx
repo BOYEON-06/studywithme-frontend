@@ -30,7 +30,6 @@ import AssignmentSection from "../component/AssignmentSection";
 import TodoSection from "../component/TodoSection";
 import NoticeSection from "../component/NoticeSection";
 import ScheduleSection from "../component/ScheduleSection";
-import ActivitySection from "../component/ActivitySection";
 import CreateStudyModal from "../component/CreateStudyModal";
 import JoinStudyModal from "../component/JoinStudyModal";
 import AIAssignmentModal from "../component/AIAssignmentModal";
@@ -287,7 +286,11 @@ const Home: React.FC = () => {
                 
                 if (totalMembers > 0 && totalAssignments > 0) {
                     progressRate = Math.round((totalSubmissionsCount / (totalAssignments * totalMembers)) * 100);
+                } else {
+                    progressRate = 100;
                 }
+            } else {
+                progressRate = 100;
             }
         } else {
             const submittedCount = selectedAssignments.filter(
@@ -296,7 +299,7 @@ const Home: React.FC = () => {
             
             progressRate = selectedAssignments.length > 0
                 ? Math.round((submittedCount / selectedAssignments.length) * 100)
-                : 0;
+                : 100;
         }
     }
 
@@ -340,6 +343,61 @@ const Home: React.FC = () => {
             console.error(error);
             showToast(`초대코드: ${selectedStudy.inviteCode}`);
         }
+    };
+
+    const getMembersWithProgress = () => {
+        if (!selectedStudy || !selectedStudy.participants) return [];
+
+        const savedUser = sessionStorage.getItem("user");
+        const user = savedUser ? JSON.parse(savedUser) : null;
+
+        const currentLeaderGroup = leaderData.find((g) => g.studyGroupId === selectedStudy.id);
+        const totalAssignments = currentLeaderGroup ? currentLeaderGroup.assignmentGroups.length : 0;
+
+        return selectedStudy.participants.map((member) => {
+            const isCreator = member.name === selectedStudy.creatorName;
+
+            if (isCreator) {
+                return {
+                    id: member.id,
+                    name: member.name,
+                    progressRate: null,
+                    isCreator: true,
+                };
+            }
+
+            if (currentLeaderGroup) {
+                const submittedCount = currentLeaderGroup.assignmentGroups.filter((group) =>
+                    group.submissions.some((sub) => sub.memberId === member.id)
+                ).length;
+                return {
+                    id: member.id,
+                    name: member.name,
+                    progressRate: totalAssignments > 0
+                        ? Math.round((submittedCount / totalAssignments) * 100)
+                        : 100,
+                    isCreator: false,
+                };
+            }
+
+            if (user && user.name === member.name) {
+                const myTotal = selectedAssignments.length;
+                const mySubmitted = selectedAssignments.filter((a) => a.status === "제출완료").length;
+                return {
+                    id: member.id,
+                    name: member.name,
+                    progressRate: myTotal > 0 ? Math.round((mySubmitted / myTotal) * 100) : 100,
+                    isCreator: false,
+                };
+            }
+
+            return {
+                id: member.id,
+                name: member.name,
+                progressRate: null,
+                isCreator: false,
+            };
+        });
     };
 
     const checkStudyLeader = () => {
@@ -504,12 +562,12 @@ const Home: React.FC = () => {
                         onOpenSubmitModal={handleOpenSubmitModal}
                         onOpenSubmissionListModal={handleOpenSubmissionListModal}
                         onOpenAllAssignmentsModal={() => setIsAllAssignmentsModalOpen(true)}
+                        members={getMembersWithProgress()}
                     />
 
                     <TodoSection todos={todos} />
                     <NoticeSection notices={notices} />
                     <ScheduleSection schedules={schedules} />
-                    <ActivitySection />
                 </section>
             </main>
 

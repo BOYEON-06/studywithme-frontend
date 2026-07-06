@@ -1,6 +1,13 @@
 import React from "react";
 import type { Assignment } from "../types/assignment";
 
+export type MemberWithProgress = {
+    id: number;
+    name: string;
+    progressRate: number | null;
+    isCreator: boolean;
+};
+
 type AssignmentSectionProps = {
     assignments: Assignment[];
     loading: boolean;
@@ -8,6 +15,7 @@ type AssignmentSectionProps = {
     onOpenSubmitModal: (assignment: Assignment) => void;
     onOpenSubmissionListModal: (assignment: Assignment) => void;
     onOpenAllAssignmentsModal: () => void;
+    members: MemberWithProgress[];
 };
 
 const AssignmentSection: React.FC<AssignmentSectionProps> = ({
@@ -17,6 +25,7 @@ const AssignmentSection: React.FC<AssignmentSectionProps> = ({
     onOpenSubmitModal,
     onOpenSubmissionListModal,
     onOpenAllAssignmentsModal,
+    members,
 }) => {
     return (
         <div className="content-card large">
@@ -24,6 +33,34 @@ const AssignmentSection: React.FC<AssignmentSectionProps> = ({
                 <h3>출제된 과제</h3>
                 <button onClick={onOpenAllAssignmentsModal}>전체보기</button>
             </div>
+
+            {/* 스터디원 프로필 및 과제 참석률 영역 */}
+            {members && members.length > 0 && (
+                <div className="assignment-members-section">
+                    <div className="member-profiles-container">
+                        <span className="members-label">스터디원:</span>
+                        <div className="member-avatar-list">
+                            {members.map((member) => (
+                                <div key={member.id} className="member-avatar-item" title={member.name}>
+                                    <div className="member-avatar">
+                                        {member.name ? member.name[0] : "U"}
+                                    </div>
+                                    <div className="member-avatar-info">
+                                        <span className="member-avatar-name">{member.name}</span>
+                                        {member.isCreator ? (
+                                            <span className="member-avatar-role">스터디장</span>
+                                        ) : (
+                                            <span className="member-avatar-progress">
+                                                {member.progressRate !== null ? `${member.progressRate}%` : "-"}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="assignment-list">
                 {loading && (
