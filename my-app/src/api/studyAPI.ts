@@ -6,6 +6,7 @@ export type StudyListItem = {
     description: string;
     inviteCode: string;
     creatorName: string;
+    participants: { id: number; name: string }[];
 };
 
 export type CreateStudyRequest = {
@@ -44,5 +45,21 @@ export async function joinStudy(data: JoinStudyRequest) {
     return request<JoinStudyResponse>("/api/studies/join", {
         method: "POST",
         body: data,
+    });
+}
+
+export type RemoveMemberResponse = {
+    message: string;
+};
+
+export async function removeStudyMember(studyId: number, memberId: number) {
+    return request<RemoveMemberResponse>(`/api/studies/${studyId}/members/${memberId}`, {
+        method: "DELETE",
+    });
+}
+
+export async function deleteStudy(studyId: number) {
+    return request<void>(`/api/studies/${studyId}`, {
+        method: "DELETE",
     });
 }

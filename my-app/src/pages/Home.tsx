@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./Home.css";
 import Toast from "../component/Toast";
+import ConfirmModal from "../component/ConfirmModal";
 
 import {
     createStudy,
     getMyStudyList,
     joinStudy,
+    removeStudyMember,
+    deleteStudy,
     type StudyListItem,
 } from "../api/studyAPI";
 
@@ -35,6 +38,7 @@ import ManualAssignmentModal from "../component/ManualAssignmentModal";
 import SubmitAssignmentModal from "../component/SubmitAssignmentModal";
 import SubmissionListModal from "../component/SubmissionListModal";
 import AllAssignmentsModal from "../component/AllAssignmentsModal";
+import ManageMembersModal from "../component/ManageMembersModal";
 import ChatPanel from "../component/ChatPanel";
 
 import type { Study } from "../types/study";
@@ -72,6 +76,49 @@ const Home: React.FC = () => {
         useState(false);
     const [isAllAssignmentsModalOpen, setIsAllAssignmentsModalOpen] =
         useState(false);
+    const [isManageMembersModalOpen, setIsManageMembersModalOpen] =
+        useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+    const handleRemoveMember = async (memberId: number) => {
+        if (!selectedStudy) return;
+
+        try {
+            const result = await removeStudyMember(selectedStudy.id, memberId);
+            
+            const updatedParticipants = (selectedStudy.participants || []).filter(
+                (p) => p.id !== memberId
+            );
+            const updatedStudy = {
+                ...selectedStudy,
+                participants: updatedParticipants,
+            };
+
+            setSelectedStudy(updatedStudy);
+            setStudies((prev) =>
+                prev.map((s) => (s.id === selectedStudy.id ? updatedStudy : s))
+            );
+            showToast(result.message || "스터디원이 성공적으로 제외되었습니다.");
+        } catch (error) {
+            console.error(error);
+            showToast("스터디원 제외에 실패했습니다.");
+        }
+    };
+
+    const handleDeleteStudy = async () => {
+        if (!selectedStudy) return;
+
+        try {
+            await deleteStudy(selectedStudy.id);
+            showToast("스터디가 성공적으로 삭제되었습니다.");
+            setIsDeleteConfirmOpen(false);
+            await fetchMyStudyList();
+        } catch (error) {
+            console.error(error);
+            showToast("스터디 삭제에 실패했습니다.");
+        }
+    };
+
     const [leaderData, setLeaderData] = useState<LeaderAssignmentItem[]>([]);
     const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -105,6 +152,7 @@ const Home: React.FC = () => {
             description: study.description,
             inviteCode: study.inviteCode,
             creatorName: study.creatorName,
+            participants: study.participants || [],
         };
     };
 
@@ -157,7 +205,12 @@ const Home: React.FC = () => {
             setStudies(convertedStudies);
 
             if (convertedStudies.length > 0) {
-                setSelectedStudy((prev) => prev ?? convertedStudies[0]);
+                setSelectedStudy((prev) => {
+                    if (prev && convertedStudies.some((s) => s.id === prev.id)) {
+                        return prev;
+                    }
+                    return convertedStudies[0];
+                });
             } else {
                 setSelectedStudy(null);
             }
@@ -439,6 +492,8 @@ const Home: React.FC = () => {
                     assignmentCount={selectedAssignments.length}
                     progressRate={progressRate}
                     onCopyInviteCode={handleShareInviteCode}
+                    onOpenManageMembers={() => setIsManageMembersModalOpen(true)}
+                    onDeleteStudy={() => setIsDeleteConfirmOpen(true)}
                 />
 
                 <section className="content-grid">
@@ -515,6 +570,22 @@ const Home: React.FC = () => {
                     onClose={() => setIsAllAssignmentsModalOpen(false)}
                     onOpenSubmitModal={handleOpenSubmitModal}
                     onOpenSubmissionListModal={handleOpenSubmissionListModal}
+                />
+            )}
+
+            {isManageMembersModalOpen && selectedStudy && (
+                <ManageMembersModal
+                    study={selectedStudy}
+                    onClose={() => setIsManageMembersModalOpen(false)}
+                    onRemoveMember={handleRemoveMember}
+                />
+            )}
+
+            {isDeleteConfirmOpen && (
+                <ConfirmModal
+                    message="정말 스터디를 삭제하시겠습니까? 삭제된 정보는 복구할 수 없습니다."
+                    onConfirm={handleDeleteStudy}
+                    onCancel={() => setIsDeleteConfirmOpen(false)}
                 />
             )}
             <div style={{ display: 'none' }}>{leaderData.length}</div>

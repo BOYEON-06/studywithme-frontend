@@ -6,6 +6,8 @@ type HeroSectionProps = {
     assignmentCount: number;
     progressRate: number;
     onCopyInviteCode: () => void;
+    onOpenManageMembers: () => void;
+    onDeleteStudy: () => void;
 };
 
 const HeroSection: React.FC<HeroSectionProps> = ({
@@ -13,13 +15,28 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     assignmentCount,
     progressRate,
     onCopyInviteCode,
+    onOpenManageMembers,
+    onDeleteStudy,
 }) => {
     return (
         <section className="hero-card">
             <div className="hero-left">
-                <span className="hero-badge">
-                    {selectedStudy ? `${selectedStudy.role} 모드` : "스터디 없음"}
-                </span>
+                <div className="hero-header" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <span className="hero-badge" style={{ marginBottom: 0 }}>
+                        {selectedStudy ? `${selectedStudy.role} 모드` : "스터디 없음"}
+                    </span>
+                    {selectedStudy?.role === "스터디장" && (
+                        <button 
+                            className="delete-study-btn"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDeleteStudy();
+                            }}
+                        >
+                            ❌ 스터디 삭제
+                        </button>
+                    )}
+                </div>
 
                 <h2>
                     {selectedStudy
@@ -34,12 +51,25 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                 )}
 
                 <div className="hero-summary">
-                    <div className="summary-box">
+                    <div className="summary-box" style={{ position: 'relative' }}>
                         <h3>
-                            {selectedStudy ? "스터디 참여중" : "0명"}
+                            {selectedStudy ? `${selectedStudy.participants?.length || 0}명` : "0명"}
                         </h3>
 
-                        <p>참여 상태</p>
+                        <p>참여 인원</p>
+                        
+                        {selectedStudy?.role === "스터디장" && (
+                            <button 
+                                className="manage-members-badge-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOpenManageMembers();
+                                }}
+                                title="스터디원 관리"
+                            >
+                                ⚙️ 관리
+                            </button>
+                        )}
                     </div>
 
                     <div className="summary-box">
