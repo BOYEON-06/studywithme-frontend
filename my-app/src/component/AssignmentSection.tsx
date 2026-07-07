@@ -85,14 +85,16 @@ const AssignmentSection: React.FC<AssignmentSectionProps> = ({
                             </div>
 
                             <div className="assignment-right">
-                                <span className={`status-badge ${assignment.status === "제출완료"
-                                        ? "submitted"
-                                        : assignment.status === "마감"
-                                            ? "expired"
-                                            : "pending"
-                                    }`}>
-                                    {assignment.status}
-                                </span>
+                                {!(isLeader && assignment.status === "미제출") && (
+                                    <span className={`status-badge ${assignment.status === "제출완료"
+                                            ? "submitted"
+                                            : assignment.status === "마감"
+                                                ? "expired"
+                                                : "pending"
+                                        }`}>
+                                        {assignment.status}
+                                    </span>
+                                )}
 
                                 {isLeader ? (
                                     <button
