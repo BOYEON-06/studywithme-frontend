@@ -47,9 +47,9 @@ const ManageMembersModal: React.FC<ManageMembersModalProps> = ({
 
                 <div className="manage-members-content">
                     <p className="manage-members-desc">
-                        현재 스터디에 참여 중인 멤버 목록입니다. 스터디장 권한으로 관리할 수 있습니다.
+                        현재 스터디에 참여 중인 멤버 목록입니다.
                     </p>
-                    
+
                     {participants.length === 0 ? (
                         <p className="empty-text">참여 중인 스터디원이 없습니다.</p>
                     ) : (
@@ -67,7 +67,7 @@ const ManageMembersModal: React.FC<ManageMembersModalProps> = ({
                                             </span>
                                         </div>
                                     </div>
-                                    
+
                                     {member.name !== study.creatorName && (
                                         <button
                                             className="member-remove-btn"
