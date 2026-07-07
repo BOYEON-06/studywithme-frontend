@@ -685,10 +685,32 @@ button {
     padding: 26px;
 }
 
-.ai-assignment-modal {
-    max-width: 620px;
-    max-height: 88vh;
-    overflow-y: auto;
+.ai-assignment-modal,
+.manual-assignment-modal {
+    max-width: none !important;
+    max-height: none !important;
+    width: 1000px;
+    height: 820px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
+    transition: all 0.2s ease;
+}
+
+.ai-assignment-modal.maximized,
+.manual-assignment-modal.maximized {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+}
+
+.ai-assignment-modal .modal-header,
+.manual-assignment-modal .modal-header {
+    padding-top: 26px;
+    margin-top: 0;
 }
 
 .submit-assignment-modal {
@@ -1055,6 +1077,81 @@ button {
     font-size: 1.2rem;
     color: #111827;
     margin-bottom: 16px;
+}
+
+.ai-result-box input,
+.ai-result-box textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    font-size: 0.95rem;
+    color: #111827;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+}
+
+.ai-result-box input:focus,
+.ai-result-box textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    outline: none;
+}
+
+.ai-result-box textarea {
+    resize: vertical;
+    min-height: 280px;
+    line-height: 1.6;
+}
+
+.ai-edit-label strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #4338ca;
+    font-size: 0.95rem;
+}
+
+.ai-model-answer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.ai-model-answer-header strong {
+    margin-bottom: 0 !important;
+}
+
+.ai-toggle-btn {
+    background: #eef2ff;
+    color: #4f46e5;
+    border: 1px solid #e0e7ff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.ai-toggle-btn:hover {
+    background: #e0e7ff;
+    border-color: #c7d2fe;
+}
+
+.ai-model-answer-content {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    padding: 14px;
+    border-radius: 12px;
+    margin-top: 8px;
+    color: #374151;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    font-size: 0.95rem;
 }
 
 .ai-result-section {
